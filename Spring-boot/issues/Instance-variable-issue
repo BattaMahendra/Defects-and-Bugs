@@ -1,0 +1,20 @@
+Issue: We have created a jms listener which accepts jms messages from the queue. In the Jms listener we autowired the service class. Usually the process is 
+1. We receive the Jms message(xml message) through listener class.
+2. We process it i.e unmarshall that into java object and take out required fields out of that java object
+3. Then we send the extracted information to the service class. (Which will process it further)
+4. Whole context is we extract a field called stationId from xml and send that to service class , service class passes this stationId to external
+API which will give back the LocationCd for that particular station Id. i.e in whole process we are converting stationId into LocationCd.
+
+Now the issue is in service class: When we receive two jms messages at the same time and they are sent to the service class.
+In service class we have declared instance variable as LocationCd and we have method to convert sationId into LocationCd.
+In the starting of that method we intialized the instance variable to null. and in later part of that method we use if loop and override that 
+LocationCd variable with value coming from API.
+The issue was at the same time three jms messages received and called the method in service at the same time. So by first jms listener thread 
+the instance variable LocationCd was set to null by first line of method code and then later it was overrided to some value by the external API.
+Then at the same time second thread also utilizes the same instance variable (which was previously loaded) and suppose for the second thread lets suppose 
+nothing coming from external api so the same value which has been there in the first thread. So the second thread and third thread also getting the first thread value.
+
+
+FIX:
+This is all because of the instance variable I created and used in the method. This issue can be avoided if we use the local variable in the methods 
+instead of instance variables. Instance variables are only recomended if we use it as a final variable. 
