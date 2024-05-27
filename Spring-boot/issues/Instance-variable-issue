@@ -13,8 +13,28 @@ The issue was at the same time three jms messages received and called the method
 the instance variable LocationCd was set to null by first line of method code and then later it was overrided to some value by the external API.
 Then at the same time second thread also utilizes the same instance variable (which was previously loaded and ideally it should have been null as intialized in the method starting) and suppose for the second thread lets suppose 
 nothing coming from external api so the same value which has been there in the first thread. So the second thread and third thread also getting the first thread value.
+(Ideally when nothing is coming from external API , the variable shouldnot be altered , so as intialized it should have been null), 
+so for the second thread the external API is returning nothing and locationCd variable should ideally be null but as first thread operation was returning some value still that 
+was being set in locationCd variable.So due to use of instance variable the old values are present and for second operation they are not being set to null.
+
+Example:
+puclic ServiceClass{
+
+//instace variable 
+String locationCd;
+
+public void convertStationIdToLocationCd( int stationId){
+
+  locationCd = null;        // three threads enter into method at same time
+//some operation 
+  String incomingString =  externalAPICall;          //first thread got some value from external api and set it to locationCd and if in  second thread operation the external api was returning null
+if(incomingString != null) locationCd = incomingString;  // so Ideally locationCd should be null right ? but it is value set by first thread operation this is the issue
+
+}
+}
 
 
 FIX:
 This is all because of the instance variable I created and used in the method. This issue can be avoided if we use the local variable in the methods 
 instead of instance variables. Instance variables are only recomended if we use it as a final variable. 
+THe above issue can also be solved by using method as synchronised but it is not a good approach considering performance
