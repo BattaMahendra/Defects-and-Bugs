@@ -11,7 +11,7 @@ In the starting of that method we intialized the instance variable to null. and 
 LocationCd variable with value coming from API.
 The issue was at the same time three jms messages received and called the method in service at the same time. So by first jms listener thread 
 the instance variable LocationCd was set to null by first line of method code and then later it was overrided to some value by the external API.
-Then at the same time second thread also utilizes the same instance variable (which was previously loaded) and suppose for the second thread lets suppose 
+Then at the same time second thread also utilizes the same instance variable (which was previously loaded and ideally it should have been null as intialized in the method starting) and suppose for the second thread lets suppose 
 nothing coming from external api so the same value which has been there in the first thread. So the second thread and third thread also getting the first thread value.
 
 
